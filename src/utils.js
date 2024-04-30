@@ -1,0 +1,27 @@
+import { format } from 'date-fns';
+
+export const formatDateTime = (dateString) => {
+  return format(new Date(dateString), 'dd.MM.yyyy HH:mm');
+};
+
+export const sortedCustomers = (customers, sortConfig) => {
+  return customers.sort((a, b) => {
+    const direction = sortConfig.direction === 'asc' ? 1 : -1;
+
+    // Guard against missing properties:
+    const propA = a?.[sortConfig.key] || "";
+    const propB = b?.[sortConfig.key] || "";
+
+    if (sortConfig.key === 'firstname' || sortConfig.key === 'lastname') {
+      return propA.localeCompare(propB) * direction;
+    }
+
+    // Add other sorting logic as needed.
+    return 0;
+  });
+};
+
+export const applyFiltering = (customers, filter) => {
+  if (!filter) return customers;
+  return customers.filter(c => c.firstname.includes(filter) || c.lastname.includes(filter));
+};

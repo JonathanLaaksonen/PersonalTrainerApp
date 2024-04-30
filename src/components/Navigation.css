@@ -1,0 +1,30 @@
+/* src/components/Navigation.css */
+.topnav {
+    background-color: #8f8df4;
+    overflow: hidden;
+    display: flex; /* Use flexbox for child elements */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+}
+
+.nav-list {
+    display: flex; /* Display list items inline */
+    list-style-type: none;
+    margin: 10;
+    padding: 0;
+}
+
+.nav-item {
+    margin: 0 10px; /* Add spacing between navigation items */
+}
+
+.nav-item a {
+    color: rgb(5, 4, 4);
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.nav-item a:hover {
+    background-color: #f08a8a;
+    color: black;
+}
