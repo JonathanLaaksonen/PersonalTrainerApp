@@ -1,24 +1,19 @@
-/* CustomersList.css */
 
-/* Style the error message */
 .error {
     color: red;
     font-weight: bold;
  }
  
- /* Style the table */
  table {
     width: 100%;
     border-collapse: collapse;
  }
  
- /* Style table headers */
  th {
     background-color: #8f8df4;
     cursor: pointer;
  }
- 
- /* Style table rows */
+
  tr:nth-child(even) {
     background-color: #f9f9f9;
  }
@@ -27,7 +22,6 @@
     background-color: #f0a3a3;
  }
  
- /* Style table cells */
  td, th {
     border: 2px solid #dc2a2a;
     padding: 8px;

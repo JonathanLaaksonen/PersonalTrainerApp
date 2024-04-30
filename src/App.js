@@ -11,7 +11,6 @@ function App() {
       <Routes>
         <Route path="/" element={<CustomersList />} />
         <Route path="/trainings" element={<TrainingsList />} />
-        {/* Add more routes as needed */}
       </Routes>
     </Router>
   );
