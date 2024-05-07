@@ -21,5 +21,14 @@ export const sortedCustomers = (customers, sortConfig) => {
 
 export const applyFiltering = (customers, filter) => {
   if (!filter) return customers;
-  return customers.filter(c => c.firstname.includes(filter) || c.lastname.includes(filter));
+  filter = filter.toLowerCase();
+  return customers.filter(c =>
+    (c.firstname && c.firstname.toLowerCase().includes(filter)) ||
+    (c.lastname && c.lastname.toLowerCase().includes(filter)) ||
+    (c.streetaddress && c.streetaddress.toLowerCase().includes(filter)) ||
+    (c.postcode && c.postcode.toLowerCase().includes(filter)) ||
+    (c.city && c.city.toLowerCase().includes(filter)) ||
+    (c.email && c.email.toLowerCase().includes(filter)) ||
+    (c.phone && c.phone.toLowerCase().includes(filter))
+  );
 };

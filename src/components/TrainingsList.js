@@ -1,103 +1,112 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { getTrainings, deleteTraining } from '../services/apiService';
 import dayjs from 'dayjs';
 
-const BASE_URL = 'https://customerrestservice-personaltraining.rahtiapp.fi/api';
 
 function TrainingsList() {
   const [trainings, setTrainings] = useState([]);
-  const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'asc' });
-  const [filter, setFilter] = useState('');
   const [error, setError] = useState(null);
+  const [filter, setFilter] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
   useEffect(() => {
     fetchTrainings();
-  }, [sortConfig, filter]);
+  }, []);
 
   const fetchTrainings = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/trainings`);
-      console.log(response.data); // Log the structure for debugging
-
-      let fetchedTrainings = response.data?._embedded?.trainings || [];
-
-      fetchedTrainings = await Promise.all(fetchedTrainings.map(async (training) => {
-        try {
-          const customerResponse = await axios.get(training._links.customer.href);
-          training.customer = customerResponse.data;
-        } catch (err) {
-          console.error("Error fetching customer info:", err);
-          training.customer = { firstname: "Unknown", lastname: "Customer" };
-        }
-        return training;
+      const response = await getTrainings();
+      const trainingsWithId = response.map(training => ({
+        ...training,
+        id: training.id, // Make sure 'id' exists in the training object data
+        customerName: training.customer ? `${training.customer.firstname} ${training.customer.lastname}` : 'No Name'
       }));
-
-      fetchedTrainings = sortedTrainings(fetchedTrainings, sortConfig);
-      fetchedTrainings = applyFiltering(fetchedTrainings, filter);
-
-      setTrainings(fetchedTrainings);
+      setTrainings(trainingsWithId);
     } catch (error) {
       setError(`Error fetching trainings: ${error.message}`);
-      console.error('Error fetching trainings:', error);
     }
   };
 
-  const sortedTrainings = (trainings, config) => {
-    if (!Array.isArray(trainings)) return [];
-    return trainings.sort((a, b) => {
-      const direction = config.direction === 'asc' ? 1 : -1;
-      const propA = a?.[config.key] || "";
-      const propB = b?.[config.key] || "";
-
-      if (propA < propB) return -1 * direction;
-      if (propA > propB) return 1 * direction;
-      return 0;
-    });
-  };
-
-  const applyFiltering = (trainings, filter) => {
-    return trainings.filter(training => training.activity.toLowerCase().includes(filter.toLowerCase()));
+  const handleDeleteTraining = async (id) => {
+    console.log("Deleting ID:", id); // This will show what ID is being passed
+    if (!id) {
+      alert("Training ID is undefined.");
+      return; // Early return if the ID is undefined
+    }
+    if (window.confirm("Are you sure you want to delete this training?")) {
+      try {
+        await deleteTraining(id);
+        setTrainings(prevTrainings => prevTrainings.filter(training => training.id !== id));
+      } catch (error) {
+        setError(`Error deleting training: ${error.message}`);
+      }
+    }
   };
 
   const handleRequestSort = (key) => {
-    const isAscending = (sortConfig.key === key && sortConfig.direction === 'asc');
-    const newConfig = { key, direction: isAscending ? 'desc' : 'asc' };
-    setSortConfig(newConfig);
-    setTrainings(sortedTrainings(trainings, newConfig));
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+    sortTrainings();
   };
+
+  const sortTrainings = () => {
+    const sorted = [...trainings].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+    setTrainings(sorted);
+  };
+
+  const filteredTrainings = trainings.filter(training => 
+    training.activity.toLowerCase().includes(filter.toLowerCase())
+  );
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
   };
 
-  const formatDateTime = (isoDate) => {
-    return dayjs(isoDate).format('DD.MM.YYYY HH:mm');
-  };
 
   return (
     <>
+      <h1>Training List</h1>
       {error && <div className="error">{error}</div>}
-      <input type="text" placeholder="Filter by activity" value={filter} onChange={handleFilterChange} />
-
+      <input 
+        type="text" 
+        placeholder="Filter by activity" 
+        value={filter} 
+        onChange={handleFilterChange} 
+      />
       <table>
         <thead>
           <tr>
             <th onClick={() => handleRequestSort('date')}>Date</th>
             <th>Activity</th>
-            <th>Duration (minutes)</th>
+            <th onClick={() => handleRequestSort('duration')}>Duration (min)</th>
             <th>Customer</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {trainings.map((training, index) => (
-            <tr key={training.id || index}>
-              <td>{formatDateTime(training.date)}</td>
-              <td>{training.activity}</td>
-              <td>{training.duration}</td>
-              <td>{training.customer.firstname} {training.customer.lastname}</td>
-            </tr>
-          ))}
-        </tbody>
+      {filteredTrainings.map((training) => (
+    <tr key={training.id}>
+      <td>{dayjs(training.date).format('DD.MM.YYYY HH:mm')}</td>
+      <td>{training.activity}</td>
+      <td>{training.duration}</td>
+      <td>{training.customerName}</td>
+      <td>
+        <button onClick={() => handleDeleteTraining(training.id)}>Delete</button>
+      </td>
+    </tr>
+  ))}
+</tbody>
       </table>
     </>
   );
