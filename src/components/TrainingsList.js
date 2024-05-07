@@ -18,7 +18,7 @@ function TrainingsList() {
       const response = await getTrainings();
       const trainingsWithId = response.map(training => ({
         ...training,
-        id: training.id, // Make sure 'id' exists in the training object data
+        id: training.id,
         customerName: training.customer ? `${training.customer.firstname} ${training.customer.lastname}` : 'No Name'
       }));
       setTrainings(trainingsWithId);
@@ -28,10 +28,10 @@ function TrainingsList() {
   };
 
   const handleDeleteTraining = async (id) => {
-    console.log("Deleting ID:", id); // This will show what ID is being passed
+    console.log("Deleting ID:", id);
     if (!id) {
       alert("Training ID is undefined.");
-      return; // Early return if the ID is undefined
+      return; 
     }
     if (window.confirm("Are you sure you want to delete this training?")) {
       try {

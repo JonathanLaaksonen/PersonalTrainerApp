@@ -28,7 +28,7 @@ export const addTraining = async (training) => {
 
 export const deleteTraining = async (trainingId) => {
   if (!trainingId) {
-      throw new Error("Training ID is undefined."); // Ensures that a missing ID is caught early
+      throw new Error("Training ID is undefined."); 
   }
   return axios.delete(`${BASE_URL}/trainings/${trainingId}`);
 };

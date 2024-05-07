@@ -47,7 +47,7 @@ function CustomersList() {
             }
         };
         fetchAndProcessCustomers();
-    }, [sortConfig, filter]);  // Include filter in the dependency array
+    }, [sortConfig, filter]); 
 
 
     const handleAddCustomer = async () => {
@@ -124,7 +124,7 @@ function CustomersList() {
             };
             await addTraining(trainingToAdd);
             alert("Training added successfully!");
-            setNewTraining({ date: '', activity: '', duration: '', customerId: '' }); // Reset form
+            setNewTraining({ date: '', activity: '', duration: '', customerId: '' }); 
             setShowTrainingForm(false);
         } catch (error) {
             console.error('Error adding training:', error);
